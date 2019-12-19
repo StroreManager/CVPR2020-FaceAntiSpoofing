@@ -80,31 +80,6 @@ class SEBottleneck(Bottleneck):
         self.stride = stride
 
 
-# class SEResNetBottleneck(Bottleneck):
-#     """
-#     ResNet bottleneck with a Squeeze-and-Excitation module. It follows Caffe
-#     implementation and uses `stride=stride` in `conv1` and not in `conv2`
-#     (the latter is used in the torchvision implementation of ResNet).
-#     """
-#     expansion = 4
-#
-#     def __init__(self, inplanes, planes, groups, reduction, stride=1,
-#                  downsample=None):
-#         super(SEResNetBottleneck, self).__init__()
-#         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False,
-#                                stride=stride)
-#         self.bn1 = nn.BatchNorm2d(planes)
-#         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, padding=1,
-#                                groups=groups, bias=False)
-#         self.bn2 = nn.BatchNorm2d(planes)
-#         self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
-#         self.bn3 = nn.BatchNorm2d(planes * 4)
-#         self.relu = nn.ReLU(inplace=True)
-#         self.se_module = SEModule(planes * 4, reduction=reduction)
-#         self.downsample = downsample
-#         self.stride = stride
-
-
 class SEResNeXtBottleneck(Bottleneck):
     """
     ResNeXt bottleneck type C with a Squeeze-and-Excitation module.

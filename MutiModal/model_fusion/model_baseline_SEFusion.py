@@ -9,7 +9,7 @@ import numpy as np
 
 BatchNorm2d = nn.BatchNorm2d
 from model.model_baseline import Net
-from model.backbone.senet import SEModule
+from model.backbone.FaceBagNet import SEModule
 
 ###########################################################################################3
 class FusionNet(nn.Module):

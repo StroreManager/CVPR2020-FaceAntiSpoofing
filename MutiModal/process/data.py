@@ -1,10 +1,10 @@
 from utils import *
 import cv2
-from data_helper import *
+from process.data_helper import *
 
-class FDDataset(Dataset):
+class FDDatasetSingle(Dataset):
     def __init__(self, mode, modality='color', fold_index=-1, image_size=128, augment = None, augmentor = None, balance = True):
-        super(FDDataset, self).__init__()
+        super(FDDatasetSingle, self).__init__()
         print('fold: '+str(fold_index))
         print(modality)
 
@@ -34,12 +34,12 @@ class FDDataset(Dataset):
             print('set dataset mode: test')
 
         elif self.mode == 'val':
-            self.val_list = load_val_list()
+            _, self.val_list = load_all_train_valid_list()
             self.num_data = len(self.val_list)
             print('set dataset mode: test')
 
         elif self.mode == 'train':
-            self.train_list = load_train_list()
+            self.train_list, _= load_all_train_valid_list()
 
             random.shuffle(self.train_list)
             self.num_data = len(self.train_list)
@@ -99,11 +99,8 @@ class FDDataset(Dataset):
 
         elif self.mode == 'val':
             image = self.augment(image, target_shape=(self.image_size, self.image_size, 3), is_infer = True)
-
             n = len(image)
-
             image = np.concatenate(image,axis=0)
-
             image = np.transpose(image, (0, 3, 1, 2))
             image = image.astype(np.float32)
             image = image.reshape([n, self.channels, self.image_size, self.image_size])
@@ -130,9 +127,9 @@ class FDDataset(Dataset):
 
 # check #################################################################
 def run_check_train_data():
-    from augmentation import color_augumentor
+    from process.augmentation import color_augumentor
     augment = color_augumentor
-    dataset = FDDataset(mode = 'train', fold_index=-1, image_size=32,  augment=augment)
+    dataset = FDDatasetSingle(mode = 'train', fold_index=-1, image_size=32,  augment=augment, balance=False)
     print(dataset)
 
     num = len(dataset)

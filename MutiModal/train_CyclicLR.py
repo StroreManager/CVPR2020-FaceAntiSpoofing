@@ -3,10 +3,12 @@ import os
 import sys
 sys.path.append("..")
 import argparse
-from process.data import *
+from process.data import FDDatasetSingle
 from process.augmentation import *
 from metric import *
 from loss.cyclic_lr import CosineAnnealingLR_with_Restart
+from submission import *
+from tqdm import tqdm
 
 def get_model(model_name, num_class,is_first_bn):
     if model_name == 'baseline':
@@ -56,7 +58,7 @@ def run_train(config):
     ## dataset ----------------------------------------
     log.write('** dataset setting **\n')
     augment = get_augment(config.image_mode)
-    train_dataset = FDDataset(mode = 'train', modality=config.image_mode,image_size=config.image_size,
+    train_dataset = FDDatasetSingle(mode = 'train', modality=config.image_mode,image_size=config.image_size,
                               fold_index=config.train_fold_index,augment=augment)
     train_loader  = DataLoader(train_dataset,
                                 shuffle=True,
@@ -64,7 +66,7 @@ def run_train(config):
                                 drop_last   = True,
                                 num_workers = 4)
 
-    valid_dataset = FDDataset(mode = 'val', modality=config.image_mode,image_size=config.image_size,
+    valid_dataset = FDDatasetSingle(mode = 'val', modality=config.image_mode,image_size=config.image_size,
                               fold_index=config.train_fold_index,augment=augment)
     valid_loader  = DataLoader( valid_dataset,
                                 shuffle=False,
@@ -137,7 +139,7 @@ def run_train(config):
             sum = 0
             optimizer.zero_grad()
 
-            for input, truth in train_loader:
+            for input, truth in tqdm(train_loader):
                 iter = i + start_iter
 
                 # one iteration update  -------------
@@ -165,6 +167,7 @@ def run_train(config):
                 i=i+1
 
             if epoch >= config.cycle_inter // 2:
+            # if 1:
                 net.eval()
                 valid_loss,_ = do_valid_test(net, valid_loader, criterion)
                 net.train()
@@ -213,7 +216,7 @@ def run_test(config, dir):
             os.makedirs(os.path.join(out_dir + '/checkpoint', dir))
 
 
-    valid_dataset = FDDataset(mode = 'val', modality=config.image_mode,image_size=config.image_size,
+    valid_dataset = FDDatasetSingle(mode = 'val', modality=config.image_mode,image_size=config.image_size,
                               fold_index=config.train_fold_index,augment=augment)
     valid_loader  = DataLoader( valid_dataset,
                                 shuffle=False,
@@ -221,7 +224,7 @@ def run_test(config, dir):
                                 drop_last   = False,
                                 num_workers=8)
 
-    test_dataset = FDDataset(mode = 'test', modality=config.image_mode,image_size=config.image_size,
+    test_dataset = FDDatasetSingle(mode = 'test', modality=config.image_mode,image_size=config.image_size,
                               fold_index=config.train_fold_index,augment=augment)
     test_loader  = DataLoader( test_dataset,
                                 shuffle=False,
@@ -251,16 +254,19 @@ def main(config):
     return
 
 if __name__ == '__main__':
+    import os
+    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--train_fold_index', type=int, default = -1)
 
-    parser.add_argument('--model', type=str, default='model_A')
-    parser.add_argument('--image_mode', type=str, default='ir')
+    parser.add_argument('--model', type=str, default='baseline')
+    parser.add_argument('--image_mode', type=str, default='color')
     parser.add_argument('--image_size', type=int, default=64)
 
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--cycle_num', type=int, default=10)
-    parser.add_argument('--cycle_inter', type=int, default=50)
+    parser.add_argument('--cycle_inter', type=int, default=10)
 
     parser.add_argument('--mode', type=str, default='train', choices=['train','infer_test'])
     parser.add_argument('--pretrained_model', type=str, default=None)

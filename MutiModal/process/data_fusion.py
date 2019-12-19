@@ -1,6 +1,6 @@
 from utils import *
-from augmentation import *
-from data_helper import *
+from process.augmentation import *
+from process.data_helper import *
 
 class FDDataset(Dataset):
     def __init__(self, mode, modality='color', fold_index='<NIL>', image_size=128, augment = None, balance = True):
@@ -33,18 +33,19 @@ class FDDataset(Dataset):
             print('set dataset mode: test')
 
         elif self.mode == 'val':
-            self.val_list = load_val_list()
+            _, self.val_list = load_all_train_valid_list()
             self.num_data = len(self.val_list)
-            print('set dataset mode: val')
+            print('set dataset mode: test')
 
         elif self.mode == 'train':
-            self.train_list = load_train_list()
+            self.train_list, _ = load_all_train_valid_list()
+
             random.shuffle(self.train_list)
             self.num_data = len(self.train_list)
-            print('set dataset mode: train')
 
             if self.balance:
                 self.train_list = transform_balance(self.train_list)
+            print('set dataset mode: train')
 
         print(self.num_data)
 

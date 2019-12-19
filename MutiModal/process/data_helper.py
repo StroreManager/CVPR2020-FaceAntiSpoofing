@@ -2,31 +2,44 @@ import os
 import random
 from utils import *
 
-DATA_ROOT = r'/data1/shentao/DATA/CVPR19_FaceAntiSpoofing'
-
+DATA_ROOT = r'/data1/scusenyang/shentao/competitions/FaceAntiSpoofing/data/CASIA-CeFA/phase1'
 TRN_IMGS_DIR = DATA_ROOT + '/Training/'
 TST_IMGS_DIR = DATA_ROOT + '/Val/'
+
 RESIZE_SIZE = 112
 
-def load_train_list():
-    list = []
-    f = open(DATA_ROOT + '/train_list.txt')
+def load_train_valid_list(e_index = 1):
+    train_list = []
+    valid_list = []
+
+    f = open(DATA_ROOT + '/4@'+str(e_index)+'_train.txt')
     lines = f.readlines()
 
     for line in lines:
         line = line.strip().split(' ')
-        list.append(line)
-    return list
+        folder = line[0].split('/')[1]
+        id = int(folder.split('_')[1])
 
-def load_val_list():
-    list = []
-    f = open(DATA_ROOT + '/val_private_list.txt')
-    lines = f.readlines()
+        info = [line[0],line[0].replace('profile','ir'),line[0].replace('profile','depth'),line[1]]
 
-    for line in lines:
-        line = line.strip().split(' ')
-        list.append(line)
-    return list
+        if id <180 and id >=0:
+            train_list.append(info)
+        else:
+            valid_list.append(info)
+
+    return train_list, valid_list
+
+def load_all_train_valid_list():
+    train_list_1, valid_list_1 = load_train_valid_list(e_index=1)
+    train_list_2, valid_list_2 = load_train_valid_list(e_index=2)
+    train_list_3, valid_list_3 = load_train_valid_list(e_index=3)
+
+    train_list = train_list_1 + train_list_2 + train_list_3
+    valid_list = valid_list_1 + valid_list_2 + valid_list_3
+
+    # print(len(train_list))
+    # print(len(valid_list))
+    return train_list, valid_list
 
 def load_test_list():
     list = []
@@ -53,22 +66,11 @@ def transform_balance(train_list):
     print(len(neg_list))
     return [pos_list,neg_list]
 
-def submission(probs, outname, mode='valid'):
-    if mode == 'valid':
-        f = open(DATA_ROOT + '/val_public_list.txt')
-    else:
-        f = open(DATA_ROOT + '/test_public_list.txt')
+if __name__ == '__main__':
+    load_all_train_valid_list()
 
-    lines = f.readlines()
-    f.close()
-    lines = [tmp.strip() for tmp in lines]
 
-    f = open(outname,'w')
-    for line,prob in zip(lines, probs):
-        out = line + ' ' + str(prob)
-        f.write(out+'\n')
-    f.close()
-    return list
+
 
 
 

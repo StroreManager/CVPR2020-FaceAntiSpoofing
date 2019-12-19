@@ -131,7 +131,7 @@ def do_valid( net, test_loader, criterion ):
         loss, acer, acc, correct
     ])
 
-    return valid_loss,[probs[:, 1], labels]
+    return valid_loss, [probs[:, 1], labels]
 
 def do_valid_test( net, test_loader, criterion ):
     valid_num  = 0
@@ -142,7 +142,6 @@ def do_valid_test( net, test_loader, criterion ):
 
 
     for i, (input, truth) in enumerate(tqdm(test_loader)):
-    # for input, truth in test_loader:
         b,n,c,w,h = input.size()
         input = input.view(b*n,c,w,h)
 

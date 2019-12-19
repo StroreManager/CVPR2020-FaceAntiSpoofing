@@ -1,5 +1,22 @@
 from metric import *
-from process.data_fusion import *
+from process.data_helper import *
+
+def submission(probs, outname, mode='valid'):
+    if mode == 'valid':
+        f = open(DATA_ROOT + '/val_public_list.txt')
+    else:
+        f = open(DATA_ROOT + '/test_public_list.txt')
+
+    lines = f.readlines()
+    f.close()
+    lines = [tmp.strip() for tmp in lines]
+
+    f = open(outname,'w')
+    for line,prob in zip(lines, probs):
+        out = line + ' ' + str(prob)
+        f.write(out+'\n')
+    f.close()
+    return list
 
 def load_sub(sub):
     sub_dict = {}

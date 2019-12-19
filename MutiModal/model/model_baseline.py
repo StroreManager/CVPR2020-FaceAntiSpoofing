@@ -28,7 +28,7 @@ class Net(nn.Module):
         if self.is_first_bn:
             self.first_bn = nn.BatchNorm2d(3)
 
-        self.encoder  = tvm.resnet18(pretrained=True)
+        self.encoder  = tvm.resnet18(pretrained=False)
         self.relu = nn.ReLU(inplace=True)
         self.pool = nn.MaxPool2d(2, 2)
 

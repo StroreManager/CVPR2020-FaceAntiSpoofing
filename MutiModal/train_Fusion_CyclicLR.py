@@ -7,6 +7,8 @@ from process.data_fusion import *
 from process.augmentation import *
 from metric import *
 from loss.cyclic_lr import CosineAnnealingLR_with_Restart
+from submission import *
+from tqdm import tqdm
 
 def get_model(model_name, num_class):
     if model_name == 'baseline':
@@ -124,7 +126,7 @@ def run_train(config):
             sum = 0
             optimizer.zero_grad()
 
-            for input, truth in train_loader:
+            for input, truth in tqdm(train_loader):
                 iter = i + start_iter
                 # one iteration update  -------------
                 net.train()
@@ -227,6 +229,9 @@ def run_test(config, dir):
     submission(out,save_dir+'_noTTA.txt', mode='test')
 
 def main(config):
+    import os
+    os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+
     if config.mode == 'train':
         run_train(config)
 
@@ -244,7 +249,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--cycle_num', type=int, default=10)
-    parser.add_argument('--cycle_inter', type=int, default=50)
+    parser.add_argument('--cycle_inter', type=int, default=10)
 
     parser.add_argument('--mode', type=str, default='train', choices=['train','infer_test'])
     parser.add_argument('--pretrained_model', type=str, default=None)
